@@ -1,0 +1,100 @@
+### Aman (You) and Hacker in an HDFC Bank Scenario with CSRF Attack
+
+#### **Scenario Setup**
+- **You**: Aman, logged into your HDFC Bank account (hdfc.com) on your browser.
+- **Hacker**: A malicious attacker who wants to transfer money from your account to theirs.
+- **Goal**: Understand how CSRF works and how the hacker exploits it.
+
+---
+
+### **Steps in a CSRF Attack**
+
+#### **1. Aman Logs Into HDFC Bank**
+- You log in to your bank account (`hdfc.com`) using your username and password.
+- The bank sets a **session cookie** (e.g., `sessionId=123456`) in your browser. This cookie is automatically sent with every request to `hdfc.com`.
+
+---
+
+#### **2. Hacker Sets Up a Malicious Website**
+- The hacker creates a malicious website, `hacker.com`.
+- On `hacker.com`, they embed a hidden request to the bank’s fund transfer endpoint:
+  ```html
+  <img src="https://hdfc.com/transfer?toAccount=hackerAccount&amount=100000" />
+  ```
+- This hidden request will automatically execute when you visit `hacker.com`.
+
+---
+
+#### **3. Aman Visits Hacker's Website**
+- While logged into `hdfc.com`, you accidentally visit `hacker.com` (e.g., through a phishing email or a fake ad).
+- The malicious website (`hacker.com`) silently triggers the hidden request:
+  ```html
+  <img src="https://hdfc.com/transfer?toAccount=hackerAccount&amount=100000" />
+  ```
+
+---
+
+#### **4. Browser Automatically Sends Cookies**
+- Because the request is to `hdfc.com` and you are already logged in, your browser **automatically includes the session cookie** (`sessionId=123456`) with the request.
+
+---
+
+#### **5. Bank Processes the Request**
+- The bank sees a valid session cookie (`sessionId=123456`) and assumes the request is legitimate.
+- The bank transfers ₹1,00,000 from your account to the hacker’s account.
+
+---
+
+### **What Does CSRF Protection Do?**
+
+1. **Requires a CSRF Token**:
+   - The bank includes a **CSRF token** in its webpages (e.g., in a hidden form field or a cookie).
+   - Example token: `csrfToken=abcdef123456`.
+
+2. **Validates the Token**:
+   - When you (Aman) submit a request to transfer money, the CSRF token must be included in the request (e.g., in a header or body).
+
+3. **Blocks Unauthorized Requests**:
+   - When the hacker’s malicious request is sent, it doesn’t include the CSRF token (since the hacker doesn’t have it).
+   - The bank rejects the request because the CSRF token is missing or invalid.
+
+---
+
+### **How CSRF Protection Works (Step-by-Step)**
+
+#### **1. Aman Logs Into HDFC Bank**
+- After login, the bank generates a CSRF token (e.g., `csrfToken=abcdef123456`) and includes it in the webpage or a cookie.
+
+#### **2. Aman Performs an Action**
+- When you submit a form (e.g., to transfer money), the browser includes:
+  - Your session cookie (`sessionId=123456`).
+  - The CSRF token (`csrfToken=abcdef123456`).
+
+#### **3. Bank Validates the Request**
+- The bank checks:
+  1. Is the session cookie valid? (Yes)
+  2. Does the request include a valid CSRF token? (Yes)
+- If both checks pass, the request is processed.
+
+#### **4. Hacker’s Request is Blocked**
+- When the hacker’s malicious request is sent:
+  - It includes your session cookie (sent automatically by the browser).
+  - **BUT it doesn’t include the CSRF token**.
+- The bank rejects the request because the CSRF token is missing or invalid.
+
+---
+
+### **Why CSRF Protection is Effective**
+- CSRF tokens are unique and tied to a session, so:
+  - Attackers cannot guess or forge them.
+  - They cannot steal them because they are tied to secure cookies or sent explicitly in headers.
+
+---
+
+### **Conclusion**
+- **Without CSRF Protection**:
+  - The hacker can trick you into making unintended actions (e.g., transferring money).
+- **With CSRF Protection**:
+  - The bank validates each request with a CSRF token, ensuring that only legitimate requests from the user are processed.
+
+Would you like a simple diagram or code example for this scenario? 😊
