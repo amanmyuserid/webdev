@@ -1,3 +1,4 @@
+
 const express = require('express');
 const winston = require('winston');
 const LokiTransport = require('winston-loki');
@@ -62,3 +63,14 @@ const collectMetrics = async () => {
     console.error('Error collecting metrics:', error);
   }
 };
+
+// Set interval to collect metrics every 5 seconds
+setInterval(collectMetrics, 2000);
+
+app.get('/', (req, res) => {
+  res.send('Metrics are being logged to Loki!');
+});
+
+app.listen(3500, () => {
+  console.log('Server is running on http://localhost:3500');
+});
